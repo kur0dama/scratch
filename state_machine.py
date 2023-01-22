@@ -28,6 +28,7 @@ class StateMachine:
             func(self, *args, **kwargs)
             self.set_complete()
             print("Set StateMachine to 'complete'")
+
         return wrapper
 
     def is_complete(self) -> bool:
@@ -51,7 +52,7 @@ class StateMachine:
 class SimpleStateMachine(StateMachine):
     def __init__(self):
         super().__init__()
-    
+
     def state_initial(self, val):
         print("In state 'state_initial'")
         print(f" - val is {val}")
@@ -95,5 +96,6 @@ class SimpleStateMachine(StateMachine):
 def main():
     ssm = SimpleStateMachine()
     ssm.run()
+
 
 main()
