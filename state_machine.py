@@ -10,7 +10,7 @@ class StateMachine:
     def set_complete(self) -> None:
         self._complete = True
 
-    def set_result(self, new_result: Callable) -> None:
+    def set_result(self, new_result: Any) -> None:
         self._result = new_result
 
     def set_next_state(self, next_state: Callable) -> None:
