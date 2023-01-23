@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from random import randint
+from typing import Callable, Any
 
 
 class StateMachine:
@@ -9,22 +10,22 @@ class StateMachine:
     def set_complete(self) -> None:
         self._complete = True
 
-    def set_result(self, new_result) -> None:
+    def set_result(self, new_result: Callable) -> None:
         self._result = new_result
 
-    def set_next_state(self, next_state) -> None:
+    def set_next_state(self, next_state: Callable) -> None:
         self._state = next_state
 
-    def update(self, current_result, next_state) -> None:
+    def update(self, current_result: Any, next_state: Callable) -> None:
         self.set_result(current_result)
         self.set_next_state(next_state)
 
-    def reset(self):
+    def reset(self) -> None:
         self._state = self.state_initial
         self._result = None
         self._complete = False
 
-    def get_current_state(self):
+    def get_current_state(self) -> str:
         return self._state.__name__
 
     def final_state(func):
@@ -45,13 +46,13 @@ class StateMachine:
         else:
             print("Run is complete, reset() to start over")
 
-    def run(self):
-        print("="*80)
+    def run(self) -> None:
+        print("=" * 80)
         while True:
             self.step()
             if self.is_complete():
                 break
-        print("="*80)
+        print("=" * 80)
 
     @abstractmethod
     def state_initial(self):
@@ -62,13 +63,13 @@ class SimpleStateMachine(StateMachine):
     def __init__(self):
         super().__init__()
 
-    def state_initial(self, val):
+    def state_initial(self, val: int) -> None:
         print("In state 'state_initial'")
         print(f" - val is {val}")
         self.set_next_state(self.state_two)
         self.set_result(0)
 
-    def state_two(self, val):
+    def state_two(self, val: int) -> None:
         print("In state 'state_two'")
         print(f" - val is {val}")
         i = randint(1, 10)
@@ -79,14 +80,14 @@ class SimpleStateMachine(StateMachine):
         elif val >= 5:
             self.update(val, self.state_four)
 
-    def state_three(self, val):
+    def state_three(self, val: int) -> None:
         print("In state 'state_three'")
         print(f" - val is {val}")
         print(" - add 5")
         val += 5
         self.update(val, self.state_final)
 
-    def state_four(self, val):
+    def state_four(self, val: int) -> None:
         print("In state 'state_four'")
         print(f" - val is {val}")
         print(" - subtract 3")
@@ -94,7 +95,7 @@ class SimpleStateMachine(StateMachine):
         self.update(val, self.state_final)
 
     @StateMachine.final_state
-    def state_final(self, val):
+    def state_final(self, val: int) -> None:
         print("In state 'state_final'")
         print(f" - final val is {val}")
 
