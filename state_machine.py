@@ -15,6 +15,10 @@ class StateMachine:
     def set_next_state(self, next_state) -> None:
         self._state = next_state
 
+    def update(self, current_result, next_state) -> None:
+        self.set_result(current_result)
+        self.set_next_state(next_state)
+
     def reset(self):
         self._state = self.state_initial
         self._result = None
@@ -42,10 +46,12 @@ class StateMachine:
             print("Run is complete, reset() to start over")
 
     def run(self):
+        print("="*80)
         while True:
             self.step()
             if self.is_complete():
                 break
+        print("="*80)
 
     @abstractmethod
     def state_initial(self):
@@ -69,26 +75,23 @@ class SimpleStateMachine(StateMachine):
         print(f" - add {i}")
         val += i
         if val < 5:
-            self.set_next_state(self.state_three)
+            self.update(val, self.state_three)
         elif val >= 5:
-            self.set_next_state(self.state_four)
-        self.set_result(val)
+            self.update(val, self.state_four)
 
     def state_three(self, val):
         print("In state 'state_three'")
         print(f" - val is {val}")
         print(" - add 5")
         val += 5
-        self.set_next_state(self.state_final)
-        self.set_result(val)
+        self.update(val, self.state_final)
 
     def state_four(self, val):
         print("In state 'state_four'")
         print(f" - val is {val}")
         print(" - subtract 3")
         val -= 3
-        self.set_next_state(self.state_final)
-        self.set_result(val)
+        self.update(val, self.state_final)
 
     @StateMachine.final_state
     def state_final(self, val):
