@@ -35,8 +35,11 @@ class StateMachine:
         return self._complete
 
     def step(self) -> None:
-        state_func = self._state
-        state_func(self._result)
+        if not self.is_complete():
+            state_func = self._state
+            state_func(self._result)
+        else:
+            print("Run is complete, reset() to start over")
 
     def run(self):
         while True:
@@ -93,9 +96,26 @@ class SimpleStateMachine(StateMachine):
         print(f" - final val is {val}")
 
 
-def main():
+def test_run():
     ssm = SimpleStateMachine()
     ssm.run()
+
+
+def test_steps():
+    ssm = SimpleStateMachine()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+    ssm.step()
+
+
+def main():
+    test_run()
+    test_steps()
 
 
 main()
