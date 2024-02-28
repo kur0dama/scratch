@@ -82,3 +82,12 @@ class Game:
 
 
 Game().run()
+
+#     WSC | B  \\\\\    |
+#     W C |    /////  B |  S
+#     W C | B  \\\\\    |  S
+#     W   |    /////  B |  SC
+#     WS  | B  \\\\\    |   C
+#      S  |    /////  B | W C
+#      S  | B  \\\\\    | W C
+#         |    /////  B | WSC
