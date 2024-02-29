@@ -19,9 +19,10 @@ def _pprint_state(state: GameState, wave_direction: int = 0) -> None:
     fmt = "{0:04b}"
     LR = tuple(fmt.format(x) for x in state)
     ((LW, LS, LC, LB), (RW, RS, RC, RB)) = LR
-    print(
-        f"{f(LW,'W')}{f(LS,'S')}{f(LC,'C')} | {f(LB,'B')}  {river_char*5}  {f(RB,'B')} | {f(RW,'W')}{f(RS,'S')}{f(RC,'C')}"
-    )
+    left = f"{f(LW,'W')}{f(LS,'S')}{f(LC,'C')} | {f(LB,'B')}"
+    right = f"{f(RB,'B')} | {f(RW,'W')}{f(RS,'S')}{f(RC,'C')}"
+    river = river_char * 5
+    print(f"{left}  {river}  {right}")
 
 
 class Game:
