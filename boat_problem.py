@@ -25,14 +25,18 @@ def _pprint_state(state: GameState, wave_direction: int = 0) -> None:
     print(f"{left}  {river}  {right}")
 
 
-class Game:
+def _print_states(states: list[GameState]):
+    i = 0
+    for state in states:
+        _pprint_state(state, i)
+        i ^= 1
+
+
+class Sim:
     def __init__(self) -> None:
         self.west: int = FULL
         self.east: int = EMPTY
         self.save_states: list[GameState] = [(self.west, self.east)]
-
-    def _get_boat_side(self) -> int:
-        return self.west if (self.west & BOAT > 0) else self.east
 
     def _set_states(self, west: int, east: int) -> None:
         self.west = west
@@ -42,13 +46,13 @@ class Game:
     def _log_states(self) -> None:
         self.save_states += [(self.west, self.east)]
 
-    def _is_illegal(self, west, east) -> bool:
+    def _is_illegal(self, west: int, east: int) -> bool:
         return west in ILLEGAL_STATES or east in ILLEGAL_STATES
 
-    def _is_repeat(self, west, east) -> bool:
+    def _is_repeat(self, west: int, east: int) -> bool:
         return (west, east) in self.save_states
 
-    def _shift_boat(self) -> bool:
+    def _move_boat(self) -> bool:
         new_west = self.west ^ BOAT
         new_east = self.east ^ BOAT
         if self._is_illegal(new_west, new_east):
@@ -56,7 +60,7 @@ class Game:
         self._set_states(new_west, new_east)
         return True
 
-    def _shift_obj(self, obj: int) -> bool:
+    def _move_obj(self, obj: int) -> bool:
         new_west = self.west ^ BOAT ^ obj
         new_east = self.east ^ BOAT ^ obj
         is_illegal_state = self._is_repeat(new_west, new_east)
@@ -69,20 +73,20 @@ class Game:
     def run(self) -> None:
         i = 0
         while True:
-            from_side = self._get_boat_side()
+            from_side = self.west if (self.west & BOAT > 0) else self.east
             for obj in [CABBAGE, SHEEP, WOLF]:
                 if from_side & obj > 0:
-                    if self._shift_obj(obj):
+                    if self._move_obj(obj):
                         break
             if self.east == FULL:
                 for state in self.save_states:
                     _pprint_state(state, i)
                     i ^= 1
                 return
-            self._shift_boat()
+            self._move_boat()
 
 
-Game().run()
+Sim().run()
 
 #     WSC | B  \\\\\    |
 #     W C |    /////  B |  S
