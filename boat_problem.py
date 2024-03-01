@@ -33,20 +33,6 @@ def _print_states(states: list[GameState]) -> None:
 
 
 def sim() -> None:
-    r"""Run full simulation
-
-    Prints the following to stdout:
-
-    WSC | B  \\\\\    |
-    W C |    /////  B |  S
-    W C | B  \\\\\    |  S
-    W   |    /////  B |  SC
-    WS  | B  \\\\\    |   C
-     S  |    /////  B | W C
-     S  | B  \\\\\    | W C
-        |    /////  B | WSC
-    """
-
     def illegal(west: int, east: int) -> bool:
         return west in ILLEGAL_STATES or east in ILLEGAL_STATES
 
@@ -75,3 +61,12 @@ def sim() -> None:
 
 
 sim()
+
+#   WSC | B  \\\\\    |
+#   W C |    /////  B |  S
+#   W C | B  \\\\\    |  S
+#   W   |    /////  B |  SC
+#   WS  | B  \\\\\    |   C
+#    S  |    /////  B | W C
+#    S  | B  \\\\\    | W C
+#       |    /////  B | WSC
