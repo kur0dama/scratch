@@ -8,16 +8,14 @@ FULL: int = BOAT | CABBAGE | SHEEP | WOLF
 
 ILLEGAL_STATES: list[int] = [CABBAGE | SHEEP, SHEEP | WOLF]
 
-GameState = tuple[int, int]
 
-
-def _pprint_state(state: GameState, wave_direction: int = 0) -> None:
+def _pprint_state(x: int, wave_direction: int = 0) -> None:
     def f(i: str, s: str) -> str:
         return " " if i == "0" else s
 
     river_char = "/" if wave_direction else "\\"
     fmt = "{0:04b}"
-    LR = tuple(fmt.format(x) for x in state)
+    LR = tuple(fmt.format(y) for y in (x, x ^ FULL))
     ((LW, LS, LC, LB), (RW, RS, RC, RB)) = LR
     left = f"{f(LW,'W')}{f(LS,'S')}{f(LC,'C')} | {f(LB,'B')}"
     right = f"{f(RB,'B')} | {f(RW,'W')}{f(RS,'S')}{f(RC,'C')}"
@@ -25,39 +23,33 @@ def _pprint_state(state: GameState, wave_direction: int = 0) -> None:
     print(f"{left}  {river}  {right}")
 
 
-def _print_states(states: list[GameState]) -> None:
+def _pprint(xs: list[int]) -> None:
     i = 0
-    for state in states:
-        _pprint_state(state, i)
+    for x in xs:
+        _pprint_state(x, i)
         i ^= 1
 
 
 def sim() -> None:
-    def illegal(state: GameState) -> bool:
-        return any(s in ILLEGAL_STATES for s in state)
+    def illegal(x: int) -> bool:
+        return x in ILLEGAL_STATES or (x ^ FULL) in ILLEGAL_STATES
 
-    def move_boat(state: GameState) -> GameState:
-        return tuple(s ^ BOAT for s in state)
-
-    def move_obj(state: GameState, obj: int) -> GameState:
-        return tuple(s ^ BOAT ^ obj for s in state)
-
-    def inner_loop(state: GameState, cache: list[GameState]):
-        cache += [state]
-        if state[1] == FULL:
-            _print_states(cache)
+    def inner_loop(x: int, xs: list[int]):
+        xs += [x]
+        if x ^ FULL == FULL:
+            _pprint(xs)
             return
-        from_side = state[0] if (state[0] & BOAT > 0) else state[1]
+        from_side = x if (x & BOAT > 0) else x ^ FULL
         for obj in [CABBAGE, SHEEP, WOLF]:
             if from_side & obj > 0:
-                new_state = move_obj(state, obj)
-                if not (illegal(new_state) or new_state in cache):
-                    inner_loop(new_state, cache)
-        new_state = move_boat(state)
-        if not (illegal(new_state) or new_state in cache):
-            inner_loop(new_state, cache)
+                new_x = x ^ BOAT ^ obj
+                if not (illegal(new_x) or new_x in xs):
+                    inner_loop(new_x, xs)
+        new_x = x ^ BOAT
+        if not (illegal(new_x) or new_x in xs):
+            inner_loop(new_x, xs)
 
-    inner_loop((FULL, EMPTY), [])
+    inner_loop(FULL, [])
 
 
 sim()
