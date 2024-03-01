@@ -25,74 +25,53 @@ def _pprint_state(state: GameState, wave_direction: int = 0) -> None:
     print(f"{left}  {river}  {right}")
 
 
-def _print_states(states: list[GameState]):
+def _print_states(states: list[GameState]) -> None:
     i = 0
     for state in states:
         _pprint_state(state, i)
         i ^= 1
 
 
-class Sim:
-    def __init__(self) -> None:
-        self.west: int = FULL
-        self.east: int = EMPTY
-        self.save_states: list[GameState] = [(self.west, self.east)]
+def sim() -> None:
+    r"""Run full simulation
 
-    def _set_states(self, west: int, east: int) -> None:
-        self.west = west
-        self.east = east
-        self._log_states()
+    Prints the following to stdout:
 
-    def _log_states(self) -> None:
-        self.save_states += [(self.west, self.east)]
+    WSC | B  \\\\\    |
+    W C |    /////  B |  S
+    W C | B  \\\\\    |  S
+    W   |    /////  B |  SC
+    WS  | B  \\\\\    |   C
+     S  |    /////  B | W C
+     S  | B  \\\\\    | W C
+        |    /////  B | WSC
+    """
 
-    def _is_illegal(self, west: int, east: int) -> bool:
+    def illegal(west: int, east: int) -> bool:
         return west in ILLEGAL_STATES or east in ILLEGAL_STATES
 
-    def _is_repeat(self, west: int, east: int) -> bool:
-        return (west, east) in self.save_states
+    def move_boat(west: int, east: int) -> GameState:
+        return (west ^ BOAT, east ^ BOAT)
 
-    def _move_boat(self) -> bool:
-        new_west = self.west ^ BOAT
-        new_east = self.east ^ BOAT
-        if self._is_illegal(new_west, new_east):
-            return False
-        self._set_states(new_west, new_east)
-        return True
+    def move_obj(west: int, east: int, obj: int) -> GameState:
+        return (west ^ BOAT ^ obj, east ^ BOAT ^ obj)
 
-    def _move_obj(self, obj: int) -> bool:
-        new_west = self.west ^ BOAT ^ obj
-        new_east = self.east ^ BOAT ^ obj
-        is_illegal_state = self._is_repeat(new_west, new_east)
-        is_repeat_state = self._is_illegal(new_west, new_east)
-        if is_illegal_state or is_repeat_state:
-            return False
-        self._set_states(new_west, new_east)
-        return True
+    def inner_loop(west: int, east: int, states: list[GameState]):
+        states += [(west, east)]
+        if east == FULL:
+            _print_states(states)
+            return
+        from_side = west if (west & BOAT > 0) else east
+        for obj in [CABBAGE, SHEEP, WOLF]:
+            if from_side & obj > 0:
+                new_state = move_obj(west, east, obj)
+                if not (illegal(*new_state) or new_state in states):
+                    inner_loop(*new_state, states)
+        new_state = move_boat(west, east)
+        if not (illegal(*new_state) or new_state in states):
+            inner_loop(*move_boat(west, east), states)
 
-    def run(self) -> None:
-        i = 0
-        while True:
-            from_side = self.west if (self.west & BOAT > 0) else self.east
-            for obj in [CABBAGE, SHEEP, WOLF]:
-                if from_side & obj > 0:
-                    if self._move_obj(obj):
-                        break
-            if self.east == FULL:
-                for state in self.save_states:
-                    _pprint_state(state, i)
-                    i ^= 1
-                return
-            self._move_boat()
+    inner_loop(FULL, EMPTY, [])
 
 
-Sim().run()
-
-#     WSC | B  \\\\\    |
-#     W C |    /////  B |  S
-#     W C | B  \\\\\    |  S
-#     W   |    /////  B |  SC
-#     WS  | B  \\\\\    |   C
-#      S  |    /////  B | W C
-#      S  | B  \\\\\    | W C
-#         |    /////  B | WSC
+sim()
