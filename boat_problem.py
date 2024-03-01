@@ -28,6 +28,7 @@ def _pprint(xs: list[int]) -> None:
     for x in xs:
         _pprint_state(x, i)
         i ^= 1
+    print("")
 
 
 def sim() -> None:
@@ -44,10 +45,10 @@ def sim() -> None:
             if from_side & obj > 0:
                 new_x = x ^ BOAT ^ obj
                 if not (illegal(new_x) or new_x in xs):
-                    inner_loop(new_x, xs)
+                    inner_loop(new_x, [*xs])
         new_x = x ^ BOAT
         if not (illegal(new_x) or new_x in xs):
-            inner_loop(new_x, xs)
+            inner_loop(new_x, [*xs])
 
     inner_loop(FULL, [])
 
@@ -59,6 +60,15 @@ sim()
 #   W C | B  \\\\\    |  S
 #   W   |    /////  B |  SC
 #   WS  | B  \\\\\    |   C
+#    S  |    /////  B | W C
+#    S  | B  \\\\\    | W C
+#       |    /////  B | WSC
+#
+#   WSC | B  \\\\\    |
+#   W C |    /////  B |  S
+#   W C | B  \\\\\    |  S
+#     C |    /////  B | WS
+#    SC | B  \\\\\    | W
 #    S  |    /////  B | W C
 #    S  | B  \\\\\    | W C
 #       |    /////  B | WSC
