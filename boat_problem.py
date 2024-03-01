@@ -33,31 +33,31 @@ def _print_states(states: list[GameState]) -> None:
 
 
 def sim() -> None:
-    def illegal(west: int, east: int) -> bool:
-        return west in ILLEGAL_STATES or east in ILLEGAL_STATES
+    def illegal(state: GameState) -> bool:
+        return any(s in ILLEGAL_STATES for s in state)
 
-    def move_boat(west: int, east: int) -> GameState:
-        return (west ^ BOAT, east ^ BOAT)
+    def move_boat(state: GameState) -> GameState:
+        return tuple(s ^ BOAT for s in state)
 
-    def move_obj(west: int, east: int, obj: int) -> GameState:
-        return (west ^ BOAT ^ obj, east ^ BOAT ^ obj)
+    def move_obj(state: GameState, obj: int) -> GameState:
+        return tuple(s ^ BOAT ^ obj for s in state)
 
-    def inner_loop(west: int, east: int, states: list[GameState]):
-        states += [(west, east)]
-        if east == FULL:
-            _print_states(states)
+    def inner_loop(state: GameState, cache: list[GameState]):
+        cache += [state]
+        if state[1] == FULL:
+            _print_states(cache)
             return
-        from_side = west if (west & BOAT > 0) else east
+        from_side = state[0] if (state[0] & BOAT > 0) else state[1]
         for obj in [CABBAGE, SHEEP, WOLF]:
             if from_side & obj > 0:
-                new_state = move_obj(west, east, obj)
-                if not (illegal(*new_state) or new_state in states):
-                    inner_loop(*new_state, states)
-        new_state = move_boat(west, east)
-        if not (illegal(*new_state) or new_state in states):
-            inner_loop(*move_boat(west, east), states)
+                new_state = move_obj(state, obj)
+                if not (illegal(new_state) or new_state in cache):
+                    inner_loop(new_state, cache)
+        new_state = move_boat(state)
+        if not (illegal(new_state) or new_state in cache):
+            inner_loop(new_state, cache)
 
-    inner_loop(FULL, EMPTY, [])
+    inner_loop((FULL, EMPTY), [])
 
 
 sim()
